@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Gmail Mobile · Premium Account Hub</title>
+  <!-- Fonts & base styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- React and React DOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* === Premium Design System === */
+    * , :after, :before {
+      box-sizing: border-box;
+      border: 0 solid;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      tab-size: 4;
+      line-height: 1.5;
+      font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    :root {
+      --spacing: 0.25rem;
+      --color-white: #fff;
+      --color-black: #000;
+      --color-gray-50: #f9fafb;
+      --color-gray-100: #f3f4f6;
+      --color-gray-200: #e5e7eb;
+      --color-gray-300: #d1d5db;
+      --color-gray-400: #9ca3af;
+      --color-gray-500: #6b7280;
+      --color-gray-600: #4b5563;
+      --color-gray-700: #374151;
+      --color-gray-800: #1f2937;
+      --color-gray-900: #111827;
+      --color-primary-50: #eff6ff;
+      --color-primary-100: #dbeafe;
+      --color-primary-200: #bfdbfe;
+      --color-primary-300: #93c5fd;
+      --color-primary-400: #60a5fa;
+      --color-primary-500: #3b82f6;
+      --color-primary-600: #2563eb;
+      --color-primary-700: #1d4ed8;
+      --color-primary-800: #1e40af;
+      --color-primary-900: #1e3a8a;
+      --color-premium-gold: #fbbf24;
+      --color-premium-gold-dark: #f59e0b;
+      --color-premium-gold-light: #fef3c7;
+      --color-success: #10b981;
+      --color-danger: #ef4444;
+      --color-warning: #f59e0b;
+      --color-info: #3b82f6;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-2xl: 2rem;
+      --radius-3xl: 3rem;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      --animate-spin: spin 1s linear infinite;
+      --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      --animate-bounce: bounce 1s infinite;
+      --animate-shimmer: shimmer 2s infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 50% { opacity: .5; } }
+    @keyframes bounce { 0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); } 50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); } }
+    @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); } 50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); } }
+    
+    .animate-spin { animation: var(--animate-spin); }
+    .animate-pulse { animation: var(--animate-pulse); }
+    .animate-bounce { animation: var(--animate-bounce); }
+    .animate-shimmer { animation: var(--animate-shimmer); }
+    .animate-slide-in { animation: slideIn 0.5s ease-out; }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    .animate-scale-in { animation: scaleIn 0.3s ease-out; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-glow { animation: glow 2s ease-in-out infinite; }
+    
+    /* Utility Classes */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+    .fixed { position: fixed; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .sticky { position: sticky; }
+    .inset-0 { inset: 0; }
+    .top-0 { top: 0; }
+    .bottom-0 { bottom: 0; }
+    .left-0 { left: 0; }
+    .right-0 { right: 0; }
+    .-z-10 { z-index: -10; }
+    .z-10 { z-index: 10; }
+    .z-20 { z-index: 20; }
+    .z-30 { z-index: 30; }
+    .z-40 { z-index: 40; }
+    .z-50 { z-index: 50; }
+    .z-\[60\] { z-index: 60; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .my-auto { margin-top: auto; margin-bottom: auto; }
+    .mt-1 { margin-top: calc(var(--spacing) * 1); }
+    .mt-2 { margin-top: calc(var(--spacing) * 2); }
+    .mt-4 { margin-top: calc(var(--spacing) * 4); }
+    .mt-6 { margin-top: calc(var(--spacing) * 6); }
+    .mt-8 { margin-top: calc(var(--spacing) * 8); }
+    .mb-1 { margin-bottom: calc(var(--spacing) * 1); }
+    .mb-2 { margin-bottom: calc(var(--spacing) * 2); }
+    .mb-4 { margin-bottom: calc(var(--spacing) * 4); }
+    .mb-6 { margin-bottom: calc(var(--spacing) * 6); }
+    .mb-8 { margin-bottom: calc(var(--spacing) * 8); }
+    .ml-1 { margin-left: calc(var(--spacing) * 1); }
+    .ml-2 { margin-left: calc(var(--spacing) * 2); }
+    .ml-4 { margin-left: calc(var(--spacing) * 4); }
+    .block { display: block; }
+    .inline-block { display: inline-block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .hidden { display: none; }
+    .h-1 { height: calc(var(--spacing) * 1); }
+    .h-2 { height: calc(var(--spacing) * 2); }
+    .h-4 { height: calc(var(--spacing) * 4); }
+    .h-5 { height: calc(var(--spacing) * 5); }
+    .h-6 { height: calc(var(--spacing) * 6); }
+    .h-8 { height: calc(var(--spacing) * 8); }
+    .h-10 { height: calc(var(--spacing) * 10); }
+    .h-12 { height: calc(var(--spacing) * 12); }
+    .h-14 { height: calc(var(--spacing) * 14); }
+    .h-16 { height: calc(var(--spacing) * 16); }
+    .h-20 { height: calc(var(--spacing) * 20); }
+    .h-24 { height: calc(var(--spacing) * 24); }
+    .h-32 { height: calc(var(--spacing) * 32); }
+    .h-64 { height: calc(var(--spacing) * 64); }
+    .h-96 { height: calc(var(--spacing) * 96); }
+    .h-full { height: 100%; }
+    .min-h-screen { min-height: 100vh; }
+    .w-2 { width: calc(var(--spacing) * 2); }
+    .w-4 { width: calc(var(--spacing) * 4); }
+    .w-5 { width: calc(var(--spacing) * 5); }
+    .w-6 { width: calc(var(--spacing) * 6); }
+    .w-8 { width: calc(var(--spacing) * 8); }
+    .w-10 { width: calc(var(--spacing) * 10); }
+    .w-12 { width: calc(var(--spacing) * 12); }
+    .w-14 { width: calc(var(--spacing) * 14); }
+    .w-16 { width: calc(var(--spacing) * 16); }
+    .w-20 { width: calc(var(--spacing) * 20); }
+    .w-24 { width: calc(var(--spacing) * 24); }
+    .w-32 { width: calc(var(--spacing) * 32); }
+    .w-64 { width: calc(var(--spacing) * 64); }
+    .w-96 { width: calc(var(--spacing) * 96); }
+    .w-full { width: 100%; }
+    .max-w-sm { max-width: 24rem; }
+    .max-w-md { max-width: 28rem; }
+    .max-w-lg { max-width: 32rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-2xl { max-width: 42rem; }
+    .max-w-3xl { max-width: 48rem; }
+    .max-w-4xl { max-width: 56rem; }
+    .max-w-5xl { max-width: 64rem; }
+    .max-w-6xl { max-width: 72rem; }
+    .max-w-7xl { max-width: 80rem; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+    .cursor-pointer { cursor: pointer; }
+    .cursor-not-allowed { cursor: not-allowed; }
+    .list-disc { list-style-type: disc; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .flex-col { flex-direction: column; }
+    .items-start { align-items: flex-start; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-start { justify-content: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .gap-1 { gap: calc(var(--spacing) * 1); }
+    .gap-2 { gap: calc(var(--spacing) * 2); }
+    .gap-3 { gap: calc(var(--spacing) * 3); }
+    .gap-4 { gap: calc(var(--spacing) * 4); }
+    .gap-6 { gap: calc(var(--spacing) * 6); }
+    .gap-8 { gap: calc(var(--spacing) * 8); }
+    .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 1); }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 2); }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 3); }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 4); }
+    .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 5); }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 6); }
+    .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 2); }
+    .space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 3); }
+    .space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 4); }
+    .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; }
+    .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-gray-200); }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .whitespace-nowrap { white-space: nowrap; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-lg { border-radius: var(--radius-lg); }
+    .rounded-xl { border-radius: var(--radius-xl); }
+    .rounded-2xl { border-radius: var(--radius-2xl); }
+    .rounded-3xl { border-radius: var(--radius-3xl); }
+    .rounded-full { border-radius: 9999px; }
+    .border { border-width: 1px; }
+    .border-2 { border-width: 2px; }
+    .border-4 { border-width: 4px; }
+    .border-b { border-bottom-width: 1px; }
+    .border-t { border-top-width: 1px; }
+    .border-r { border-right-width: 1px; }
+    .border-solid { border-style: solid; }
+    .border-dashed { border-style: dashed; }
+    .border-gray-200 { border-color: var(--color-gray-200); }
+    .border-gray-300 { border-color: var(--color-gray-300); }
+    .border-gray-400 { border-color: var(--color-gray-400); }
+    .border-primary-200 { border-color: var(--color-primary-200); }
+    .border-primary-500 { border-color: var(--color-primary-500); }
+    .border-premium-gold { border-color: var(--color-premium-gold); }
+    .border-premium-gold-dark { border-color: var(--color-premium-gold-dark); }
+    .border-white { border-color: var(--color-white); }
+    .border-transparent { border-color: transparent; }
+    .bg-black { background-color: var(--color-black); }
+    .bg-white { background-color: var(--color-white); }
+    .bg-gray-50 { background-color: var(--color-gray-50); }
+    .bg-gray-100 { background-color: var(--color-gray-100); }
+    .bg-gray-200 { background-color: var(--color-gray-200); }
+    .bg-gray-800 { background-color: var(--color-gray-800); }
+    .bg-gray-900 { background-color: var(--color-gray-900); }
+    .bg-primary-50 { background-color: var(--color-primary-50); }
+    .bg-primary-100 { background-color: var(--color-primary-100); }
+    .bg-primary-500 { background-color: var(--color-primary-500); }
+    .bg-primary-600 { background-color: var(--color-primary-600); }
+    .bg-primary-700 { background-color: var(--color-primary-700); }
+    .bg-premium-gold { background-color: var(--color-premium-gold); }
+    .bg-premium-gold-dark { background-color: var(--color-premium-gold-dark); }
+    .bg-premium-gold-light { background-color: var(--color-premium-gold-light); }
+    .bg-success { background-color: var(--color-success); }
+    .bg-danger { background-color: var(--color-danger); }
+    .bg-warning { background-color: var(--color-warning); }
+    .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
+    .bg-white\/20 { background-color: rgba(255, 255, 255, 0.2); }
+    .bg-white\/30 { background-color: rgba(255, 255, 255, 0.3); }
+    .bg-white\/50 { background-color: rgba(255, 255, 255, 0.5); }
+    .bg-white\/80 { background-color: rgba(255, 255, 255, 0.8); }
+    .bg-white\/90 { background-color: rgba(255, 255, 255, 0.9); }
+    .bg-white\/95 { background-color: rgba(255, 255, 255, 0.95); }
+    .bg-black\/20 { background-color: rgba(0, 0, 0, 0.2); }
+    .bg-black\/40 { background-color: rgba(0, 0, 0, 0.4); }
+    .bg-black\/50 { background-color: rgba(0, 0, 0, 0.5); }
+    .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+    .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+    .bg-gradient-to-tr { background-image: linear-gradient(to top right, var(--tw-gradient-stops)); }
+    .bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--tw-gradient-stops)); }
+    .from-primary-400 { --tw-gradient-from: var(--color-primary-400); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(96 165 250 / 0)); }
+    .from-primary-500 { --tw-gradient-from: var(--color-primary-500); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(59 130 246 / 0)); }
+    .from-primary-600 { --tw-gradient-from: var(--color-primary-600); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(37 99 235 / 0)); }
+    .from-premium-gold { --tw-gradient-from: var(--color-premium-gold); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(251 191 36 / 0)); }
+    .from-premium-gold-dark { --tw-gradient-from: var(--color-premium-gold-dark); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(245 158 11 / 0)); }
+    .from-purple-500 { --tw-gradient-from: #a855f7; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(168 85 247 / 0)); }
+    .from-indigo-500 { --tw-gradient-from: #6366f1; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(99 102 241 / 0)); }
+    .via-purple-500 { --tw-gradient-via: #a855f7; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+    .via-pink-500 { --tw-gradient-via: #ec4899; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+    .to-primary-600 { --tw-gradient-to: var(--color-primary-600); }
+    .to-primary-700 { --tw-gradient-to: var(--color-primary-700); }
+    .to-primary-800 { --tw-gradient-to: var(--color-primary-800); }
+    .to-premium-gold-dark { --tw-gradient-to: var(--color-premium-gold-dark); }
+    .to-orange-500 { --tw-gradient-to: #f97316; }
+    .to-pink-500 { --tw-gradient-to: #ec4899; }
+    .to-pink-600 { --tw-gradient-to: #db2777; }
+    .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
+    .p-1 { padding: calc(var(--spacing) * 1); }
+    .p-2 { padding: calc(var(--spacing) * 2); }
+    .p-3 { padding: calc(var(--spacing) * 3); }
+    .p-4 { padding: calc(var(--spacing) * 4); }
+    .p-5 { padding: calc(var(--spacing) * 5); }
+    .p-6 { padding: calc(var(--spacing) * 6); }
+    .p-8 { padding: calc(var(--spacing) * 8); }
+    .p-10 { padding: calc(var(--spacing) * 10); }
+    .px-2 { padding-left: calc(var(--spacing) * 2); padding-right: calc(var(--spacing) * 2); }
+    .px-3 { padding-left: calc(var(--spacing) * 3); padding-right: calc(var(--spacing) * 3); }
+    .px-4 { padding-left: calc(var(--spacing) * 4); padding-right: calc(var(--spacing) * 4); }
+    .px-5 { padding-left: calc(var(--spacing) * 5); padding-right: calc(var(--spacing) * 5); }
+    .px-6 { padding-left: calc(var(--spacing) * 6); padding-right: calc(var(--spacing) * 6); }
+    .px-8 { padding-left: calc(var(--spacing) * 8); padding-right: calc(var(--spacing) * 8); }
+    .py-1 { padding-top: calc(var(--spacing) * 1); padding-bottom: calc(var(--spacing) * 1); }
+    .py-2 { padding-top: calc(var(--spacing) * 2); padding-bottom: calc(var(--spacing) * 2); }
+    .py-3 { padding-top: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); }
+    .py-4 { padding-top: calc(var(--spacing) * 4); padding-bottom: calc(var(--spacing) * 4); }
+    .py-6 { padding-top: calc(var(--spacing) * 6); padding-bottom: calc(var(--spacing) * 6); }
+    .py-8 { padding-top: calc(var(--spacing) * 8); padding-bottom: calc(var(--spacing) * 8); }
+    .pt-4 { padding-top: calc(var(--spacing) * 4); }
+    .pt-6 { padding-top: calc(var(--spacing) * 6); }
+    .pb-4 { padding-bottom: calc(var(--spacing) * 4); }
+    .pb-10 { padding-bottom: calc(var(--spacing) * 10); }
+    .pl-4 { padding-left: calc(var(--spacing) * 4); }
+    .pl-5 { padding-left: calc(var(--spacing) * 5); }
+    .pl-10 { padding-left: calc(var(--spacing) * 10); }
+    .pl-12 { padding-left: calc(var(--spacing) * 12); }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    .text-5xl { font-size: 3rem; line-height: 1; }
+    .text-6xl { font-size: 3.75rem; line-height: 1; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .tracking-wide { letter-spacing: 0.025em; }
+    .leading-tight { line-height: 1.25; }
+    .text-gray-400 { color: var(--color-gray-400); }
+    .text-gray-500 { color: var(--color-gray-500); }
+    .text-gray-600 { color: var(--color-gray-600); }
+    .text-gray-700 { color: var(--color-gray-700); }
+    .text-gray-800 { color: var(--color-gray-800); }
+    .text-gray-900 { color: var(--color-gray-900); }
+    .text-primary-500 { color: var(--color-primary-500); }
+    .text-primary-600 { color: var(--color-primary-600); }
+    .text-primary-700 { color: var(--color-primary-700); }
+    .text-primary-800 { color: var(--color-primary-800); }
+    .text-premium-gold { color: var(--color-premium-gold); }
+    .text-premium-gold-dark { color: var(--color-premium-gold-dark); }
+    .text-success { color: var(--color-success); }
+    .text-danger { color: var(--color-danger); }
+    .text-warning { color: var(--color-warning); }
+    .text-white { color: var(--color-white); }
+    .text-transparent { color: transparent; }
+    .opacity-0 { opacity: 0; }
+    .opacity-25 { opacity: 0.25; }
+    .opacity-50 { opacity: 0.5; }
+    .opacity-75 { opacity: 0.75; }
+    .opacity-100 { opacity: 1; }
+    .shadow-sm { box-shadow: var(--shadow-sm); }
+    .shadow-md { box-shadow: var(--shadow-md); }
+    .shadow-lg { box-shadow: var(--shadow-lg); }
+    .shadow-xl { box-shadow: var(--shadow-xl); }
+    .shadow-2xl { box-shadow: var(--shadow-2xl); }
+    .shadow-premium { box-shadow: 0 0 30px rgba(251, 191, 36, 0.3); }
+    .blur-sm { filter: blur(4px); }
+    .blur-md { filter: blur(12px); }
+    .blur-lg { filter: blur(16px); }
+    .blur-xl { filter: blur(24px); }
+    .blur-3xl { filter: blur(64px); }
+    .backdrop-blur-sm { backdrop-filter: blur(4px); }
+    .backdrop-blur-md { backdrop-filter: blur(8px); }
+    .backdrop-blur-lg { backdrop-filter: blur(12px); }
+    .backdrop-blur-xl { backdrop-filter: blur(20px); }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .duration-200 { transition-duration: 200ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .duration-500 { transition-duration: 500ms; }
+    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    .hover\:scale-105:hover { transform: scale(1.05); }
+    .hover\:scale-110:hover { transform: scale(1.1); }
+    .hover\:-translate-y-1:hover { transform: translateY(-0.25rem); }
+    .hover\:-translate-y-2:hover { transform: translateY(-0.5rem); }
+    .hover\:bg-gray-50:hover { background-color: var(--color-gray-50); }
+    .hover\:bg-gray-100:hover { background-color: var(--color-gray-100); }
+    .hover\:bg-primary-50:hover { background-color: var(--color-primary-50); }
+    .hover\:bg-primary-600:hover { background-color: var(--color-primary-600); }
+    .hover\:bg-primary-700:hover { background-color: var(--color-primary-700); }
+    .hover\:bg-premium-gold-dark:hover { background-color: var(--color-premium-gold-dark); }
+    .hover\:from-primary-600:hover { --tw-gradient-from: var(--color-primary-600); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(37 99 235 / 0)); }
+    .hover\:from-premium-gold-dark:hover { --tw-gradient-from: var(--color-premium-gold-dark); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(245 158 11 / 0)); }
+    .hover\:to-primary-700:hover { --tw-gradient-to: var(--color-primary-700); }
+    .hover\:to-orange-600:hover { --tw-gradient-to: #ea580c; }
+    .hover\:text-primary-600:hover { color: var(--color-primary-600); }
+    .hover\:text-primary-700:hover { color: var(--color-primary-700); }
+    .hover\:text-danger:hover { color: var(--color-danger); }
+    .hover\:shadow-lg:hover { box-shadow: var(--shadow-lg); }
+    .hover\:shadow-xl:hover { box-shadow: var(--shadow-xl); }
+    .hover\:shadow-premium:hover { box-shadow: 0 0 40px rgba(251, 191, 36, 0.5); }
+    .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+    .focus\:ring-2:focus { box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+    .focus\:ring-primary-500:focus { --tw-ring-color: var(--color-primary-500); }
+    .focus\:ring-premium-gold:focus { --tw-ring-color: var(--color-premium-gold); }
+    .focus\:border-primary-500:focus { border-color: var(--color-primary-500); }
+    .disabled\:opacity-50:disabled { opacity: 0.5; }
+    .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
+    .group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+    .group:hover .group-hover\:bg-primary-100 { background-color: var(--color-primary-100); }
+    .group:hover .group-hover\:opacity-100 { opacity: 1; }
+    
+    @media (min-width: 640px) {
+      .sm\:inline { display: inline; }
+      .sm\:hidden { display: none; }
+      .sm\:w-96 { width: 24rem; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:p-8 { padding: 2rem; }
+      .sm\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+    }
+    
+    @media (min-width: 768px) {
+      .md\:flex { display: flex; }
+      .md\:hidden { display: none; }
+      .md\:w-1\/3 { width: 33.333333%; }
+      .md\:w-2\/3 { width: 66.666667%; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    
+    @media (min-width: 1024px) {
+      .lg\:col-span-1 { grid-column: span 1 / span 1; }
+      .lg\:col-span-2 { grid-column: span 2 / span 2; }
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+    }
+    
+    .lucide { width: 1.25rem; height: 1.25rem; }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+  // -------------------------------------------------------------
+  // Firebase Configuration
+  // -------------------------------------------------------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZOW5vjgtloGvtOHT5XpPzqgwuoHmn-4M",
+    authDomain: "shop-688a5.firebaseapp.com",
+    projectId: "shop-688a5",
+    storageBucket: "shop-688a5.firebasestorage.app",
+    messagingSenderId: "239593059374",
+    appId: "1:239593059374:android:bb70d0441aa93445281bbf"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const serverTimestamp = () => firebase.firestore.FieldValue.serverTimestamp();
+
+  console.log('🔥 Firebase initialized successfully');
+
+  // ---------- React Hooks and Context ----------
+  const { useState, useEffect, useRef, createContext, useContext } = React;
+
+  // ---------- Router ----------
+  const RouterContext = createContext(null);
+  const useRouter = () => useContext(RouterContext);
+  
+  const Router = ({ children }) => {
+    const [path, setPath] = useState(window.location.pathname);
+    useEffect(() => {
+      const onPop = () => setPath(window.location.pathname);
+      window.addEventListener('popstate', onPop);
+      return () => window.removeEventListener('popstate', onPop);
+    }, []);
+    const navigate = (to) => { 
+      window.history.pushState(null, '', to); 
+      setPath(to); 
+    };
+    return (
+      <RouterContext.Provider value={{ path, navigate }}>
+        {children}
+      </RouterContext.Provider>
+    );
+  };
+  
+  const Routes = ({ children }) => {
+    const { path } = useRouter();
+    let element = null;
+    React.Children.forEach(children, child => {
+      if (child.props.path === path) element = child.props.element;
+    });
+    return element;
+  };
+  
+  const Route = ({ element }) => null;
+  
+  const Link = ({ to, children, className }) => {
+    const { navigate } = useRouter();
+    return (
+      <a href={to} className={className} onClick={(e) => { e.preventDefault(); navigate(to); }}>
+        {children}
+      </a>
+    );
+  };
+  
+  const Navigate = ({ to }) => { 
+    const { navigate } = useRouter(); 
+    useEffect(() => { navigate(to); }, []); 
+    return null; 
+  };
+
+  // ---------- Auth Context ----------
+  const AuthContext = createContext({ user: null, userData: null, loading: true });
+  const useAuth = () => useContext(AuthContext);
+
+  const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+      const unsub = auth.onAuthStateChanged(async (firebaseUser) => {
+        setUser(firebaseUser);
+        if (!firebaseUser) { 
+          setUserData(null); 
+          setLoading(false); 
+          return; 
+        }
+        try {
+          const userDocRef = db.collection('users').doc(firebaseUser.uid);
+          const snap = await userDocRef.get();
+          if (snap.exists) {
+            setUserData(snap.data());
+          } else {
+            const isAdmin = firebaseUser.email?.toLowerCase() === 'mdrakibulbd175@gmail.com';
+            const newUser = {
+              uid: firebaseUser.uid,
+              fullName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              email: firebaseUser.email,
+              balance: 0,
+              isPremium: false,
+              premiumUntil: null,
+              role: isAdmin ? 'admin' : 'user',
+              createdAt: serverTimestamp()
+            };
+            await userDocRef.set(newUser);
+            setUserData(newUser);
+          }
+        } catch (err) { 
+          console.error(err); 
+        } finally { 
+          setLoading(false); 
+        }
+      });
+      return () => unsub();
+    }, []);
+    
+    return (
+      <AuthContext.Provider value={{ user, userData, loading }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  };
+
+  // ---------- Premium Icon Components ----------
+  const Icon = ({ d, className = "", ...props }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+      {Array.isArray(d) ? d.map((p, i) => React.createElement(p[0], {key: i, ...p[1]})) : <path d={d} />}
+    </svg>
+  );
+
+  const icons = {
+    Mail: [['rect',{width:20,height:16,x:2,y:4,rx:2}],['path',{d:'m22 7-10 7L2 7'}]],
+    Lock: [['rect',{width:18,height:11,x:3,y:11,rx:2}],['path',{d:'M7 11V7a5 5 0 0 1 10 0v4'}]],
+    User: [['path',{d:'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'}],['circle',{cx:12,cy:7,r:4}]],
+    LogOut: [['path',{d:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'}],['path',{d:'m16 17 5-5-5-5'}],['path',{d:'M21 12H9'}]],
+    Wallet: [['path',{d:'M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'}],['path',{d:'M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'}]],
+    Crown: [['path',{d:'m12 2 3.5 7 7.5 1-5 5 2 8-8-4-8 4 2-8-5-5 7.5-1z'}],['path',{d:'M5 21h14'}]],
+    X: [['path',{d:'M18 6 6 18'}],['path',{d:'m6 6 12 12'}]],
+    Send: [['path',{d:'m22 2-7 20-4-9-9-4z'}],['path',{d:'M22 2 11 13'}]],
+    Sparkles: [['path',{d:'M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'}],['path',{d:'M20 3v4'}],['path',{d:'M22 5h-4'}],['path',{d:'M4 17v2'}],['path',{d:'M5 18H3'}]],
+    Shield: [['path',{d:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10'}]],
+    Gift: [['rect',{x:3,y:8,width:18,height:4,rx:1}],['path',{d:'M12 8v13'}],['path',{d:'M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7'}],['path',{d:'M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5'}]],
+    TrendingUp: [['polyline',{points:'22 7 13.5 15.5 8.5 10.5 2 17'}],['polyline',{points:'16 7 22 7 22 13'}]],
+    Clock: [['circle',{cx:12,cy:12,r:10}],['polyline',{points:'12 6 12 12 16 14'}]],
+    CheckCircle: [['path',{d:'M22 11.08V12a10 10 0 1 1-5.93-9.14'}],['polyline',{points:'22 4 12 14.01 9 11.01'}]],
+    AlertCircle: [['circle',{cx:12,cy:12,r:10}],['line',{x1:12,y1:8,x2:12,y2:12}],['line',{x1:12,y1:16,x2:12.01,y2:16}]],
+    ArrowRight: [['line',{x1:5,y1:12,x2:19,y2:12}],['polyline',{points:'12 5 19 12 12 19'}]],
+    CreditCard: [['rect',{width:20,height:14,x:2,y:5,rx:2}],['line',{x1:2,y1:10,x2:22,y2:10}]],
+    DollarSign: [['line',{x1:12,y1:1,x2:12,y2:23}],['path',{d:'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'}]],
+    Download: [['path',{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'}],['polyline',{points:'7 10 12 15 17 10'}],['line',{x1:12,y1:15,x2:12,y2:3}]],
+    Upload: [['path',{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'}],['polyline',{points:'17 8 12 3 7 8'}],['line',{x1:12,y1:3,x2:12,y2:15}]],
+    Settings: [['path',{d:'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z'}],['circle',{cx:12,cy:12,r:3}]],
+  };
+
+  // ---------- Loading Spinner ----------
+  const Spinner = () => (
+    <div className="flex justify-center items-center p-8">
+      <div className="relative">
+        <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-premium-gold rounded-full animate-spin" style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
+      </div>
+    </div>
+  );
+
+  // ---------- Toast Notification Component ----------
+  const Toast = ({ message, type = 'success', onClose }) => {
+    useEffect(() => {
+      const timer = setTimeout(onClose, 5000);
+      return () => clearTimeout(timer);
+    }, [onClose]);
+    
+    const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary-600';
+    const IconComponent = type === 'success' ? icons.CheckCircle : icons.AlertCircle;
+    
+    return (
+      <div className={`fixed top-20 right-4 z-50 animate-slide-in ${bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-md`}>
+        <Icon d={IconComponent} className="w-5 h-5 flex-shrink-0" />
+        <span className="flex-1">{message}</span>
+        <button onClick={onClose} className="ml-4 hover:opacity-75">
+          <Icon d={icons.X} className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  // ---------- Premium Badge Component ----------
+  const PremiumBadge = ({ size = 'md' }) => {
+    const sizes = {
+      sm: 'text-xs px-2 py-1',
+      md: 'text-sm px-3 py-1.5',
+      lg: 'text-base px-4 py-2'
+    };
+    
+    return (
+      <div className={`inline-flex items-center gap-1 bg-gradient-to-r from-premium-gold to-orange-500 text-white font-bold rounded-full ${sizes[size]} shadow-premium animate-glow`}>
+        <Icon d={icons.Crown} className={size === 'sm' ? 'w-3 h-3' : size === 'md' ? 'w-4 h-4' : 'w-5 h-5'} />
+        <span>PREMIUM</span>
+      </div>
+    );
+  };
+
+  // ---------- Premium Lock Overlay Component ----------
+  const PremiumLock = ({ children, isPremium, onUpgrade }) => {
+    if (isPremium) return children;
+    
+    return (
+      <div className="relative group">
+        <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm rounded-2xl z-10 flex flex-col items-center justify-center p-6 transition-all duration-300 group-hover:bg-gray-900/90">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-premium-gold to-orange-500 rounded-full flex items-center justify-center shadow-premium animate-float">
+              <Icon d={icons.Crown} className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Premium Feature</h3>
+              <p className="text-gray-300 text-sm mb-4">Unlock this feature with Premium</p>
+              <button 
+                onClick={onUpgrade}
+                className="bg-gradient-to-r from-premium-gold to-orange-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-premium transition-all duration-300 transform hover:scale-105"
+              >
+                Upgrade Now - $6
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="blur-sm">
+          {children}
+        </div>
+      </div>
+    );
+  };
+
+  // ---------- Pages ----------
+  const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { navigate } = useRouter();
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      setError(''); 
+      setLoading(true);
+      try { 
+        await auth.signInWithEmailAndPassword(email, password); 
+        navigate('/dashboard'); 
+      } catch (err) { 
+        setError(err.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-purple-500 to-pink-500">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+          <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '2s'}}></div>
+          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '4s'}}></div>
+        </div>
+        
+        <div className="relative z-10 max-w-md w-full">
+          {/* Logo */}
+          <div className="text-center mb-8 animate-slide-in">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-lg rounded-3xl shadow-2xl mb-4">
+              <Icon d={icons.Mail} className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl font-black text-white mb-2">Gmail Mobile</h1>
+            <p className="text-white/80">Premium Account Hub</p>
+          </div>
+          
+          {/* Login Form */}
+          <div className="bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl animate-scale-in">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Welcome Back</h2>
+            
+            <form onSubmit={submit} className="space-y-5">
+              {error && (
+                <div className="bg-danger/10 border border-danger/20 text-danger p-4 rounded-xl flex items-start gap-3 animate-slide-in">
+                  <Icon d={icons.AlertCircle} className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                <div className="relative group">
+                  <Icon d={icons.Mail} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                  <input 
+                    type="email" 
+                    required 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                    placeholder="Email address"
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                  />
+                </div>
+                
+                <div className="relative group">
+                  <Icon d={icons.Lock} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                  <input 
+                    type="password" 
+                    required 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                    placeholder="Password"
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                  />
+                </div>
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-gradient-to-r from-primary-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Signing in...
+                  </span>
+                ) : 'Sign In'}
+              </button>
+              
+              <div className="flex items-center justify-between pt-4">
+                <Link to="/signup" className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+                  Create Account
+                </Link>
+                <Link to="/forgot-password" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Forgot Password?
+                </Link>
+              </div>
+            </form>
+          </div>
+          
+          {/* Footer */}
+          <div className="mt-6 text-center text-white/60 text-sm">
+            <p>© 2024 Gmail Mobile. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Signup = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPass] = useState('');
+    const [confirm, setConfirm] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { navigate } = useRouter();
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      if(password !== confirm) return setError('Passwords do not match');
+      if(password.length < 6) return setError('Password must be at least 6 characters');
+      setError(''); 
+      setLoading(true);
+      try { 
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(cred.user.uid).set({ 
+          uid: cred.user.uid, 
+          fullName: name, 
+          email, 
+          balance: 0, 
+          isPremium: false, 
+          role: email.toLowerCase() === 'mdrakibulbd175@gmail.com' ? 'admin' : 'user', 
+          createdAt: serverTimestamp() 
+        });
+        navigate('/dashboard');
+      } catch(err) { 
+        setError(err.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-purple-500 to-pink-500">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+          <div className="absolute bottom-0 right-0 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '2s'}}></div>
+        </div>
+        
+        <div className="relative z-10 max-w-md w-full">
+          <div className="bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl animate-scale-in">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl shadow-lg mb-3">
+                <Icon d={icons.User} className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
+              <p className="text-gray-600 mt-1">Join the premium community</p>
+            </div>
+            
+            <form onSubmit={submit} className="space-y-4">
+              {error && (
+                <div className="bg-danger/10 border border-danger/20 text-danger p-4 rounded-xl flex items-start gap-3 animate-slide-in">
+                  <Icon d={icons.AlertCircle} className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+              
+              <div className="relative group">
+                <Icon d={icons.User} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                <input 
+                  required 
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                  placeholder="Full Name" 
+                  value={name} 
+                  onChange={e => setName(e.target.value)} 
+                />
+              </div>
+              
+              <div className="relative group">
+                <Icon d={icons.Mail} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                <input 
+                  type="email" 
+                  required 
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                  placeholder="Email address" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                />
+              </div>
+              
+              <div className="relative group">
+                <Icon d={icons.Lock} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                <input 
+                  type="password" 
+                  required 
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                  placeholder="Password" 
+                  value={password} 
+                  onChange={e => setPass(e.target.value)} 
+                />
+              </div>
+              
+              <div className="relative group">
+                <Icon d={icons.Lock} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                <input 
+                  type="password" 
+                  required 
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                  placeholder="Confirm Password" 
+                  value={confirm} 
+                  onChange={e => setConfirm(e.target.value)} 
+                />
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-gradient-to-r from-primary-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Creating Account...
+                  </span>
+                ) : 'Sign Up'}
+              </button>
+              
+              <div className="text-center pt-4">
+                <p className="text-gray-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+                    Sign In
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ForgotPassword = () => {
+    const [email, setEmail] = useState('');
+    const [msg, setMsg] = useState('');
+    const [err, setErr] = useState('');
+    const [loading, setLoading] = useState(false);
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      setErr(''); 
+      setMsg(''); 
+      setLoading(true);
+      try { 
+        await auth.sendPasswordResetEmail(email); 
+        setMsg('Reset link sent! Check your inbox.'); 
+      } catch(e) { 
+        setErr(e.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-purple-500 to-pink-500">
+          <div className="absolute inset-0 bg-black/20"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-md w-full">
+          <div className="bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl animate-scale-in">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl shadow-lg mb-3">
+                <Icon d={icons.Lock} className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
+              <p className="text-gray-600 mt-1">We'll send you a reset link</p>
+            </div>
+            
+            <form onSubmit={submit} className="space-y-4">
+              {err && (
+                <div className="bg-danger/10 border border-danger/20 text-danger p-4 rounded-xl flex items-start gap-3">
+                  <Icon d={icons.AlertCircle} className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm">{err}</span>
+                </div>
+              )}
+              
+              {msg && (
+                <div className="bg-success/10 border border-success/20 text-success p-4 rounded-xl flex items-start gap-3">
+                  <Icon d={icons.CheckCircle} className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm">{msg}</span>
+                </div>
+              )}
+              
+              <div className="relative group">
+                <Icon d={icons.Mail} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                <input 
+                  type="email" 
+                  required 
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all duration-300"
+                  placeholder="Email address" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                />
+              </div>
+              
+              <button 
+                disabled={loading} 
+                className="w-full bg-gradient-to-r from-primary-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
+              >
+                {loading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+              
+              <div className="text-center pt-4">
+                <Link to="/login" className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+                  Back to Login
+                </Link>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Dashboard = () => {
+    const { user, userData, loading } = useAuth();
+    const { navigate } = useRouter();
+    const [showDeposit, setShowDeposit] = useState(false);
+    const [showWithdraw, setShowWithdraw] = useState(false);
+    const [showPremium, setShowPremium] = useState(false);
+    const [amount, setAmount] = useState('');
+    const [trxId, setTrxId] = useState('');
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [selectedMethod, setSelectedMethod] = useState('');
+    const [history, setHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(true);
+    const [toast, setToast] = useState(null);
+    const [stats, setStats] = useState({ totalAccounts: 0, thisMonth: 0 });
+
+    useEffect(() => { 
+      if(!loading && !user) navigate('/login'); 
+    }, [user, loading]);
+    
+    useEffect(() => {
+      if(!user) return;
+      const q = db.collection('gmailHistory')
+        .where('userId', '==', user.uid)
+        .orderBy('createdAt', 'desc');
+      const unsub = q.onSnapshot((snap) => { 
+        const accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setHistory(accounts);
+        setStats({
+          totalAccounts: accounts.length,
+          thisMonth: accounts.filter(a => {
+            const date = a.createdAt?.toDate?.() || new Date();
+            return date.getMonth() === new Date().getMonth();
+          }).length
+        });
+        setLoadingHistory(false); 
+      });
+      return unsub;
+    }, [user]);
+    
+    useEffect(() => { 
+      (async () => { 
+        const snap = await db.collection('settings').doc('paymentMethods').get(); 
+        if(snap.exists) setPaymentMethods(snap.data().methods || []); 
+      })(); 
+    }, []);
+    
+    const logout = () => auth.signOut();
+    
+    const buyPremium = async () => { 
+      if(!userData) return; 
+      if(userData.balance < 6) {
+        setToast({ message: 'Insufficient balance. Please deposit $6 first.', type: 'error' });
+        return;
+      }
+      try { 
+        await db.collection('users').doc(user.uid).update({ 
+          balance: userData.balance - 6, 
+          isPremium: true, 
+          premiumUntil: new Date(Date.now() + 30*86400000).toISOString() 
+        }); 
+        setToast({ message: '🎉 Premium activated successfully!', type: 'success' });
+        setShowPremium(false);
+      } catch(e) { 
+        setToast({ message: e.message, type: 'error' });
+      }
+    };
+    
+    const deposit = async (e) => { 
+      e.preventDefault(); 
+      if(!amount || !trxId || !selectedMethod) {
+        setToast({ message: 'Please fill all fields', type: 'error' });
+        return;
+      }
+      try { 
+        await db.collection('depositRequests').add({ 
+          userId: user.uid, 
+          userEmail: user.email, 
+          method: selectedMethod, 
+          transactionId: trxId, 
+          amount: Number(amount), 
+          status: 'pending', 
+          createdAt: serverTimestamp() 
+        }); 
+        setToast({ message: 'Deposit request submitted successfully!', type: 'success' });
+        setShowDeposit(false); 
+        setAmount('');
+        setTrxId('');
+        setSelectedMethod('');
+      } catch(e) { 
+        setToast({ message: e.message, type: 'error' });
+      }
+    };
+
+    if(loading || !userData) return <Spinner />;
+    
+    const isPremiumActive = userData.isPremium && (!userData.premiumUntil || new Date(userData.premiumUntil) > new Date());
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        
+        {/* Premium Header */}
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Icon d={icons.Mail} className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                    Gmail Mobile
+                  </h1>
+                  {isPremiumActive && <PremiumBadge size="sm" />}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {userData.role === 'admin' && (
+                  <Link to="/admin" className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all duration-300">
+                    Admin Panel
+                  </Link>
+                )}
+                <button 
+                  onClick={logout} 
+                  className="p-2 text-gray-500 hover:text-danger rounded-xl hover:bg-danger/10 transition-all duration-300"
+                >
+                  <Icon d={icons.LogOut} className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-8">
+            {/* Welcome Section */}
+            <div className="bg-gradient-to-br from-primary-600 via-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-2xl animate-slide-in">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">Welcome back, {userData.fullName}! 👋</h2>
+                  <p className="text-white/80 flex items-center gap-2">
+                    <Icon d={icons.Mail} className="w-4 h-4" />
+                    {userData.email}
+                  </p>
+                </div>
+                {!isPremiumActive && (
+                  <button 
+                    onClick={() => setShowPremium(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-premium-gold to-orange-500 text-white rounded-xl font-bold shadow-premium hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
+                  >
+                    <Icon d={icons.Crown} className="w-5 h-5" />
+                    Upgrade to Premium
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Balance Card */}
+              <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Available Balance</p>
+                    <p className="text-4xl font-black text-gray-900 mt-1">${userData.balance.toFixed(2)}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Icon d={icons.Wallet} className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setShowDeposit(true)}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all duration-300"
+                  >
+                    Deposit
+                  </button>
+                  <button 
+                    onClick={() => setShowWithdraw(true)}
+                    className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-all duration-300"
+                  >
+                    Withdraw
+                  </button>
+                </div>
+              </div>
+              
+              {/* Stats Card */}
+              <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Total Accounts</p>
+                    <p className="text-4xl font-black text-gray-900 mt-1">{stats.totalAccounts}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Icon d={icons.TrendingUp} className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon d={icons.Clock} className="w-4 h-4 text-gray-500" />
+                  <span className="text-gray-600">{stats.thisMonth} created this month</span>
+                </div>
+              </div>
+              
+              {/* Premium Status Card */}
+              <div className={`bg-white rounded-2xl p-6 shadow-xl border transition-all duration-300 ${
+                isPremiumActive ? 'border-premium-gold shadow-premium' : 'border-gray-100 hover:shadow-2xl'
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Membership</p>
+                    <p className={`text-2xl font-black mt-1 ${isPremiumActive ? 'text-premium-gold-dark' : 'text-gray-900'}`}>
+                      {isPremiumActive ? 'Premium' : 'Free'}
+                    </p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                    isPremiumActive ? 'bg-gradient-to-br from-premium-gold to-orange-500' : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                  }`}>
+                    <Icon d={icons.Crown} className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                {isPremiumActive && userData.premiumUntil && (
+                  <p className="text-sm text-gray-600">
+                    Valid until {new Date(userData.premiumUntil).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <PremiumLock isPremium={isPremiumActive} onUpgrade={() => setShowPremium(true)}>
+                <div 
+                  onClick={() => isPremiumActive && navigate('/create-gmail')}
+                  className={`bg-white rounded-2xl p-8 border-2 border-dashed transition-all duration-300 cursor-pointer group ${
+                    isPremiumActive 
+                      ? 'border-primary-200 hover:border-primary-400 hover:shadow-xl' 
+                      : 'border-gray-200'
+                  }`}
+                >
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Icon d={icons.Mail} className="w-10 h-10 text-primary-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Create Gmail Account</h3>
+                    <p className="text-gray-600 mb-4">Generate a new Gmail account instantly</p>
+                    {isPremiumActive && (
+                      <span className="inline-flex items-center gap-1 text-primary-600 font-semibold group-hover:gap-2 transition-all">
+                        Get Started 
+                        <Icon d={icons.ArrowRight} className="w-4 h-4" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </PremiumLock>
+              
+              <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition-all duration-300">
+                <div className="flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                    <Icon d={icons.Gift} className="w-10 h-10 text-premium-gold" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Sell Gmail Accounts</h3>
+                  <p className="text-gray-300 mb-4">Earn money by selling your Gmail accounts</p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-premium-gold/20 rounded-full border border-premium-gold/30">
+                    <Icon d={icons.Sparkles} className="w-4 h-4 text-premium-gold" />
+                    <span className="text-sm font-medium">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Recent Accounts Table */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gray-900">Recent Gmail Accounts</h3>
+                {!isPremiumActive && (
+                  <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                    Limited View
+                  </span>
+                )}
+              </div>
+              
+              {loadingHistory ? (
+                <div className="p-8"><Spinner /></div>
+              ) : history.length ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Password</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {history.slice(0, isPremiumActive ? undefined : 3).map((h) => (
+                        <tr key={h.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <Icon d={icons.Mail} className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900">{h.email}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="font-mono text-sm text-gray-600">{h.password}</span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {h.firstName || ''} {h.lastName || ''}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {h.createdAt?.toDate?.().toLocaleDateString() || 'Just now'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  
+                  {!isPremiumActive && history.length > 3 && (
+                    <div className="p-4 bg-gray-50 border-t border-gray-100 text-center">
+                      <button 
+                        onClick={() => setShowPremium(true)}
+                        className="inline-flex items-center gap-2 text-primary-600 font-semibold hover:text-primary-700"
+                      >
+                        <Icon d={icons.Lock} className="w-4 h-4" />
+                        Upgrade to Premium to view all {history.length} accounts
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon d={icons.Mail} className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 mb-4">No accounts created yet</p>
+                  {isPremiumActive && (
+                    <button 
+                      onClick={() => navigate('/create-gmail')}
+                      className="px-6 py-2 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+                    >
+                      Create Your First Account
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+        
+        {/* Deposit Modal */}
+        {showDeposit && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" onClick={() => setShowDeposit(false)}>
+            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Deposit Funds</h3>
+                  <p className="text-gray-500 text-sm mt-1">Add money to your wallet</p>
+                </div>
+                <button 
+                  onClick={() => setShowDeposit(false)}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <Icon d={icons.X} className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <form onSubmit={deposit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                  <select 
+                    value={selectedMethod} 
+                    onChange={e => setSelectedMethod(e.target.value)} 
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all"
+                    required
+                  >
+                    <option value="">Select payment method</option>
+                    {paymentMethods.map(m => (
+                      <option key={m.id} value={m.name}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount ($)</label>
+                  <div className="relative">
+                    <Icon d={icons.DollarSign} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input 
+                      type="number" 
+                      min="1"
+                      step="0.01"
+                      placeholder="Enter amount"
+                      value={amount} 
+                      onChange={e => setAmount(e.target.value)} 
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Transaction ID</label>
+                  <input 
+                    placeholder="Enter transaction ID"
+                    value={trxId} 
+                    onChange={e => setTrxId(e.target.value)} 
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20 transition-all"
+                    required
+                  />
+                </div>
+                
+                {selectedMethod && paymentMethods.find(m => m.name === selectedMethod)?.instructions && (
+                  <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+                    <p className="text-sm text-primary-800 font-medium mb-2">Payment Instructions:</p>
+                    <p className="text-sm text-primary-700">{paymentMethods.find(m => m.name === selectedMethod).instructions}</p>
+                  </div>
+                )}
+                
+                <button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-primary-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  Submit Deposit Request
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+        
+        {/* Premium Upgrade Modal */}
+        {showPremium && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" onClick={() => setShowPremium(false)}>
+            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in" onClick={e => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-premium-gold to-orange-500 rounded-2xl flex items-center justify-center shadow-premium mb-4 animate-float">
+                  <Icon d={icons.Crown} className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Upgrade to Premium</h3>
+                <p className="text-gray-600">Unlock all premium features</p>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                {[
+                  'Create unlimited Gmail accounts',
+                  'View full account history',
+                  'Priority support',
+                  'Early access to new features'
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-success/10 rounded-full flex items-center justify-center">
+                      <Icon d={icons.CheckCircle} className="w-3 h-3 text-success" />
+                    </div>
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="bg-gradient-to-br from-premium-gold-light to-amber-50 rounded-2xl p-6 mb-6">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Monthly Subscription</p>
+                  <p className="text-5xl font-black text-gray-900">$6</p>
+                  <p className="text-sm text-gray-500 mt-1">per month</p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={buyPremium}
+                className="w-full bg-gradient-to-r from-premium-gold to-orange-500 text-white py-4 rounded-xl font-bold text-lg shadow-premium hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
+              >
+                Upgrade Now
+              </button>
+              
+              <p className="text-center text-xs text-gray-500 mt-4">
+                Cancel anytime. Premium features will remain active until the end of billing period.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const Admin = () => {
+    const { userData } = useAuth();
+    const { navigate } = useRouter();
+    const [deposits, setDeposits] = useState([]);
+    const [activeTab, setActiveTab] = useState('deposits');
+    const [toast, setToast] = useState(null);
+    
+    useEffect(() => { 
+      if(userData?.role !== 'admin') navigate('/dashboard'); 
+    }, [userData]);
+    
+    useEffect(() => { 
+      const q = db.collection('depositRequests').where('status', '==', 'pending').orderBy('createdAt', 'desc');
+      return q.onSnapshot(s => setDeposits(s.docs.map(d => ({ id: d.id, ...d.data() })))); 
+    }, []);
+    
+    const approveDeposit = async (req) => { 
+      try { 
+        await db.runTransaction(async (t) => {
+          const userRef = db.collection('users').doc(req.userId);
+          const userSnap = await t.get(userRef);
+          if(!userSnap.exists) throw new Error('User not found');
+          t.update(userRef, { balance: userSnap.data().balance + req.amount });
+          t.update(db.collection('depositRequests').doc(req.id), { 
+            status: 'approved',
+            approvedAt: serverTimestamp()
+          });
+        }); 
+        setToast({ message: `Deposit of $${req.amount} approved!`, type: 'success' });
+      } catch(e) { 
+        setToast({ message: e.message, type: 'error' });
+      } 
+    };
+    
+    const rejectDeposit = async (reqId) => {
+      try {
+        await db.collection('depositRequests').doc(reqId).update({ 
+          status: 'rejected',
+          rejectedAt: serverTimestamp()
+        });
+        setToast({ message: 'Deposit request rejected', type: 'success' });
+      } catch(e) {
+        setToast({ message: e.message, type: 'error' });
+      }
+    };
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        
+        <header className="bg-white/80 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Icon d={icons.Shield} className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+                  <p className="text-xs text-gray-500">Manage your platform</p>
+                </div>
+              </div>
+              <Link to="/dashboard" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+                Back to Dashboard
+              </Link>
+            </div>
+          </div>
+        </header>
+        
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="border-b border-gray-200">
+              <nav className="flex gap-8 px-6">
+                {['deposits', 'users', 'settings'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`py-4 font-medium capitalize transition-all duration-300 border-b-2 ${
+                      activeTab === tab 
+                        ? 'border-primary-600 text-primary-600' 
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            
+            <div className="p-6">
+              {activeTab === 'deposits' && (
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Pending Deposits ({deposits.length})</h2>
+                  {deposits.length ? (
+                    <div className="space-y-3">
+                      {deposits.map(r => (
+                        <div key={r.id} className="bg-gray-50 rounded-xl p-4 flex items-center justify-between hover:bg-gray-100 transition-colors">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                <Icon d={icons.User} className="w-5 h-5 text-primary-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">{r.userEmail}</p>
+                                <p className="text-sm text-gray-500">ID: {r.transactionId}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 ml-13">
+                              <span className="text-lg font-bold text-gray-900">${r.amount}</span>
+                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                {r.method}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {r.createdAt?.toDate?.().toLocaleString() || 'Just now'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => approveDeposit(r)} 
+                              className="px-4 py-2 bg-success text-white rounded-lg font-medium hover:bg-success/90 transition-colors"
+                            >
+                              Approve
+                            </button>
+                            <button 
+                              onClick={() => rejectDeposit(r.id)} 
+                              className="px-4 py-2 bg-danger text-white rounded-lg font-medium hover:bg-danger/90 transition-colors"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Icon d={icons.CheckCircle} className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <p className="text-gray-500">No pending deposit requests</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {activeTab === 'users' && (
+                <div className="text-center py-12">
+                  <Icon d={icons.Users} className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">User management coming soon</p>
+                </div>
+              )}
+              
+              {activeTab === 'settings' && (
+                <div className="text-center py-12">
+                  <Icon d={icons.Settings} className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Platform settings coming soon</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  };
+
+  const CreateGmail = () => {
+    const { user, userData } = useAuth();
+    const { navigate } = useRouter();
+    const [step, setStep] = useState(1);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    
+    useEffect(() => {
+      if(userData && !userData.isPremium) {
+        navigate('/dashboard');
+      }
+    }, [userData]);
+    
+    const genEmail = () => `${firstName.toLowerCase().replace(/[^a-z]/g,'')}${lastName.toLowerCase().replace(/[^a-z]/g,'')}${Math.floor(Math.random()*1000)}@gmail.com`;
+    
+    const create = async () => {
+      if(!password || password.length < 8) {
+        alert('Password must be at least 8 characters');
+        return;
+      }
+      
+      setLoading(true);
+      const email = genEmail();
+      try { 
+        await db.collection('gmailHistory').add({ 
+          userId: user.uid, 
+          email, 
+          password, 
+          firstName, 
+          lastName, 
+          createdAt: serverTimestamp() 
+        }); 
+        navigate('/dashboard'); 
+      } catch(e) { 
+        alert(e.message); 
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          {/* Google Style Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 mb-4">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent">G</span>
+              </div>
+              <span className="text-2xl text-white font-medium">Google</span>
+            </div>
+            <h1 className="text-3xl text-white font-light mb-2">Create your Google Account</h1>
+            <p className="text-gray-400">Step {step} of 2</p>
+          </div>
+          
+          {/* Form Card */}
+          <div className="bg-white rounded-3xl p-8 shadow-2xl">
+            {step === 1 && (
+              <div className="space-y-4 animate-fade-in">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">First name</label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all"
+                      placeholder="First name"
+                      value={firstName} 
+                      onChange={e => setFirstName(e.target.value)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Last name</label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all"
+                      placeholder="Last name"
+                      value={lastName} 
+                      onChange={e => setLastName(e.target.value)} 
+                    />
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setStep(2)}
+                  disabled={!firstName || !lastName}
+                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            
+            {step === 2 && (
+              <div className="space-y-4 animate-fade-in">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+                  <div className="px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl text-gray-600">
+                    {firstName && lastName ? genEmail() : 'Enter your name first'}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <input 
+                    type="password"
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all"
+                    placeholder="Create a strong password"
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Use 8 or more characters with a mix of letters, numbers & symbols</p>
+                </div>
+                
+                <div className="flex gap-3 mt-6">
+                  <button 
+                    onClick={() => setStep(1)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button 
+                    onClick={create}
+                    disabled={loading || !password}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Creating...' : 'Create Account'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ---------- App Root ----------
+  const App = () => (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/create-gmail" element={<CreateGmail />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+
+  // Render the app
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+</script>
+</body>
+  </html>
