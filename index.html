@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Gmail Mobile · Account Hub</title>
+  <!-- Fonts & base styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- React and React DOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* === tailwind base + utilities === */
+    * , :after, :before {
+      box-sizing: border-box;
+      border: 0 solid;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      tab-size: 4;
+      line-height: 1.5;
+      font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      background: #f8fafc;
+    }
+    :root {
+      --spacing: 0.25rem;
+      --color-white: #fff;
+      --color-black: #000;
+      --color-gray-50: #f9fafb;
+      --color-gray-100: #f3f4f6;
+      --color-gray-200: #e5e7eb;
+      --color-gray-400: #9ca3af;
+      --color-gray-500: #6b7280;
+      --color-gray-600: #4b5563;
+      --color-gray-700: #374151;
+      --color-gray-800: #1f2937;
+      --color-gray-900: #111827;
+      --color-indigo-50: #eef2ff;
+      --color-indigo-100: #e0e7ff;
+      --color-indigo-200: #c7d2fe;
+      --color-indigo-500: #6366f1;
+      --color-indigo-600: #4f46e5;
+      --color-indigo-700: #4338ca;
+      --color-indigo-800: #3730a3;
+      --color-indigo-900: #312e81;
+      --color-purple-500: #a855f7;
+      --color-purple-600: #9333ea;
+      --color-purple-700: #7e22ce;
+      --color-amber-50: #fffbeb;
+      --color-amber-100: #fef3c7;
+      --color-amber-200: #fde68a;
+      --color-amber-400: #fbbf24;
+      --color-amber-500: #f59e0b;
+      --color-amber-600: #d97706;
+      --color-amber-800: #92400e;
+      --color-emerald-50: #ecfdf5;
+      --color-emerald-100: #d1fae5;
+      --color-emerald-500: #10b981;
+      --color-emerald-600: #059669;
+      --color-emerald-700: #047857;
+      --color-red-50: #fef2f2;
+      --color-red-100: #fee2e2;
+      --color-red-500: #ef4444;
+      --color-red-600: #dc2626;
+      --color-orange-500: #f97316;
+      --color-orange-600: #ea580c;
+      --color-blue-500: #3b82f6;
+      --color-teal-500: #14b8a6;
+      --color-teal-600: #0d9488;
+      --radius-xl: 0.75rem;
+      --radius-2xl: 1rem;
+      --radius-3xl: 1.5rem;
+      --animate-spin: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes ping { 75%,to { opacity:0; transform:scale(2); } }
+    @keyframes bounce { 0%,to { transform:translateY(-25%); animation-timing-function:cubic-bezier(.8,0,1,1); } 50% { transform:none; animation-timing-function:cubic-bezier(0,0,.2,1); } }
+    @keyframes progress-bar { 0% { width:0%; margin-left:0% } 50% { width:50%; margin-left:25% } to { width:100%; margin-left:100% } }
+    .animate-spin { animation: var(--animate-spin); }
+    .animate-ping { animation: ping 1s cubic-bezier(0,0,.2,1) infinite; }
+    .animate-bounce { animation: bounce 1s infinite; }
+    .animate-progress-bar { animation: progress-bar 2s ease-in-out infinite; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+    .fixed { position: fixed; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .sticky { position: sticky; }
+    .inset-0 { inset: 0; }
+    .top-0 { top: 0; }
+    .bottom-0 { bottom: 0; }
+    .left-0 { left: 0; }
+    .right-0 { right: 0; }
+    .-z-10 { z-index: -10; }
+    .z-10 { z-index: 10; }
+    .z-30 { z-index: 30; }
+    .z-40 { z-index: 40; }
+    .z-50 { z-index: 50; }
+    .z-\[60\] { z-index: 60; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .my-auto { margin-top: auto; margin-bottom: auto; }
+    .mt-1 { margin-top: calc(var(--spacing) * 1); }
+    .mt-2 { margin-top: calc(var(--spacing) * 2); }
+    .mt-4 { margin-top: calc(var(--spacing) * 4); }
+    .mt-6 { margin-top: calc(var(--spacing) * 6); }
+    .mt-8 { margin-top: calc(var(--spacing) * 8); }
+    .mb-1 { margin-bottom: calc(var(--spacing) * 1); }
+    .mb-2 { margin-bottom: calc(var(--spacing) * 2); }
+    .mb-4 { margin-bottom: calc(var(--spacing) * 4); }
+    .mb-6 { margin-bottom: calc(var(--spacing) * 6); }
+    .mb-8 { margin-bottom: calc(var(--spacing) * 8); }
+    .ml-1 { margin-left: calc(var(--spacing) * 1); }
+    .ml-2 { margin-left: calc(var(--spacing) * 2); }
+    .block { display: block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .hidden { display: none; }
+    .h-1 { height: calc(var(--spacing) * 1); }
+    .h-2 { height: calc(var(--spacing) * 2); }
+    .h-5 { height: calc(var(--spacing) * 5); }
+    .h-6 { height: calc(var(--spacing) * 6); }
+    .h-8 { height: calc(var(--spacing) * 8); }
+    .h-10 { height: calc(var(--spacing) * 10); }
+    .h-12 { height: calc(var(--spacing) * 12); }
+    .h-14 { height: calc(var(--spacing) * 14); }
+    .h-20 { height: calc(var(--spacing) * 20); }
+    .h-24 { height: calc(var(--spacing) * 24); }
+    .h-32 { height: calc(var(--spacing) * 32); }
+    .h-64 { height: calc(var(--spacing) * 64); }
+    .h-96 { height: calc(var(--spacing) * 96); }
+    .h-full { height: 100%; }
+    .min-h-screen { min-height: 100vh; }
+    .w-2 { width: calc(var(--spacing) * 2); }
+    .w-4 { width: calc(var(--spacing) * 4); }
+    .w-5 { width: calc(var(--spacing) * 5); }
+    .w-6 { width: calc(var(--spacing) * 6); }
+    .w-8 { width: calc(var(--spacing) * 8); }
+    .w-10 { width: calc(var(--spacing) * 10); }
+    .w-12 { width: calc(var(--spacing) * 12); }
+    .w-14 { width: calc(var(--spacing) * 14); }
+    .w-16 { width: calc(var(--spacing) * 16); }
+    .w-20 { width: calc(var(--spacing) * 20); }
+    .w-24 { width: calc(var(--spacing) * 24); }
+    .w-32 { width: calc(var(--spacing) * 32); }
+    .w-64 { width: calc(var(--spacing) * 64); }
+    .w-96 { width: calc(var(--spacing) * 96); }
+    .w-full { width: 100%; }
+    .max-w-md { max-width: 28rem; }
+    .max-w-5xl { max-width: 64rem; }
+    .max-w-6xl { max-width: 72rem; }
+    .flex-1 { flex: 1 1 0%; }
+    .shrink-0 { flex-shrink: 0; }
+    .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+    .cursor-pointer { cursor: pointer; }
+    .list-disc { list-style-type: disc; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .gap-4 { gap: calc(var(--spacing) * 4); }
+    .gap-6 { gap: calc(var(--spacing) * 6); }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 2); }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 3); }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 4); }
+    .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 5); }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 6); }
+    .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(var(--spacing) * 8); }
+    .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 2); }
+    .space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 3); }
+    .space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: calc(var(--spacing) * 4); }
+    .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; }
+    .divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-gray-100); }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .whitespace-nowrap { white-space: nowrap; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-2xl { border-radius: var(--radius-2xl); }
+    .rounded-\[2rem\] { border-radius: 2rem; }
+    .rounded-\[2\.5rem\] { border-radius: 2.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .rounded-xl { border-radius: var(--radius-xl); }
+    .border { border-width: 1px; }
+    .border-2 { border-width: 2px; }
+    .border-4 { border-width: 4px; }
+    .border-b { border-bottom-width: 1px; }
+    .border-t { border-top-width: 1px; }
+    .border-r { border-right-width: 1px; }
+    .border-solid { border-style: solid; }
+    .border-gray-100 { border-color: var(--color-gray-100); }
+    .border-gray-200 { border-color: var(--color-gray-200); }
+    .border-amber-100 { border-color: var(--color-amber-100); }
+    .border-amber-200 { border-color: var(--color-amber-200); }
+    .border-emerald-100 { border-color: var(--color-emerald-100); }
+    .border-indigo-200 { border-color: var(--color-indigo-200); }
+    .border-indigo-600 { border-color: var(--color-indigo-600); }
+    .border-red-100 { border-color: var(--color-red-100); }
+    .border-white { border-color: var(--color-white); }
+    .border-transparent { border-color: transparent; }
+    .bg-black { background-color: var(--color-black); }
+    .bg-white { background-color: var(--color-white); }
+    .bg-gray-50 { background-color: var(--color-gray-50); }
+    .bg-gray-100 { background-color: var(--color-gray-100); }
+    .bg-indigo-50 { background-color: var(--color-indigo-50); }
+    .bg-indigo-100 { background-color: var(--color-indigo-100); }
+    .bg-indigo-600 { background-color: var(--color-indigo-600); }
+    .bg-amber-50 { background-color: var(--color-amber-50); }
+    .bg-amber-400 { background-color: var(--color-amber-400); }
+    .bg-emerald-50 { background-color: var(--color-emerald-50); }
+    .bg-red-50 { background-color: var(--color-red-50); }
+    .bg-red-500 { background-color: var(--color-red-500); }
+    .bg-slate-50 { background-color: #f8fafc; }
+    .bg-white\/80 { background-color: rgba(255,255,255,0.8); }
+    .bg-white\/95 { background-color: rgba(255,255,255,0.95); }
+    .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+    .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+    .from-indigo-500 { --tw-gradient-from: var(--color-indigo-500); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .from-indigo-600 { --tw-gradient-from: var(--color-indigo-600); }
+    .from-amber-400 { --tw-gradient-from: var(--color-amber-400); }
+    .from-emerald-500 { --tw-gradient-from: var(--color-emerald-500); }
+    .from-red-500 { --tw-gradient-from: var(--color-red-500); }
+    .via-purple-600 { --tw-gradient-via: var(--color-purple-600); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+    .to-fuchsia-600 { --tw-gradient-to: #d946ef; }
+    .to-purple-600 { --tw-gradient-to: var(--color-purple-600); }
+    .to-purple-700 { --tw-gradient-to: var(--color-purple-700); }
+    .to-orange-500 { --tw-gradient-to: var(--color-orange-500); }
+    .to-orange-600 { --tw-gradient-to: var(--color-orange-600); }
+    .to-pink-600 { --tw-gradient-to: #db2777; }
+    .to-teal-600 { --tw-gradient-to: var(--color-teal-600); }
+    .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
+    .p-1 { padding: calc(var(--spacing) * 1); }
+    .p-2 { padding: calc(var(--spacing) * 2); }
+    .p-3 { padding: calc(var(--spacing) * 3); }
+    .p-4 { padding: calc(var(--spacing) * 4); }
+    .p-5 { padding: calc(var(--spacing) * 5); }
+    .p-6 { padding: calc(var(--spacing) * 6); }
+    .p-8 { padding: calc(var(--spacing) * 8); }
+    .p-10 { padding: calc(var(--spacing) * 10); }
+    .px-2 { padding-left: calc(var(--spacing) * 2); padding-right: calc(var(--spacing) * 2); }
+    .px-3 { padding-left: calc(var(--spacing) * 3); padding-right: calc(var(--spacing) * 3); }
+    .px-4 { padding-left: calc(var(--spacing) * 4); padding-right: calc(var(--spacing) * 4); }
+    .px-6 { padding-left: calc(var(--spacing) * 6); padding-right: calc(var(--spacing) * 6); }
+    .py-1 { padding-top: calc(var(--spacing) * 1); padding-bottom: calc(var(--spacing) * 1); }
+    .py-2 { padding-top: calc(var(--spacing) * 2); padding-bottom: calc(var(--spacing) * 2); }
+    .py-3 { padding-top: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); }
+    .py-3\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+    .py-4 { padding-top: calc(var(--spacing) * 4); padding-bottom: calc(var(--spacing) * 4); }
+    .pt-4 { padding-top: calc(var(--spacing) * 4); }
+    .pb-10 { padding-bottom: calc(var(--spacing) * 10); }
+    .pl-4 { padding-left: calc(var(--spacing) * 4); }
+    .pl-5 { padding-left: calc(var(--spacing) * 5); }
+    .pl-12 { padding-left: calc(var(--spacing) * 12); }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    .font-mono { font-family: ui-monospace, monospace; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .text-4xl { font-size: 2.25rem; }
+    .text-5xl { font-size: 3rem; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-medium { font-weight: 500; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .text-gray-400 { color: var(--color-gray-400); }
+    .text-gray-500 { color: var(--color-gray-500); }
+    .text-gray-600 { color: var(--color-gray-600); }
+    .text-gray-700 { color: var(--color-gray-700); }
+    .text-gray-800 { color: var(--color-gray-800); }
+    .text-gray-900 { color: var(--color-gray-900); }
+    .text-indigo-600 { color: var(--color-indigo-600); }
+    .text-indigo-700 { color: var(--color-indigo-700); }
+    .text-indigo-900 { color: var(--color-indigo-900); }
+    .text-amber-500 { color: var(--color-amber-500); }
+    .text-amber-600 { color: var(--color-amber-600); }
+    .text-amber-800 { color: var(--color-amber-800); }
+    .text-emerald-600 { color: var(--color-emerald-600); }
+    .text-emerald-700 { color: var(--color-emerald-700); }
+    .text-red-500 { color: var(--color-red-500); }
+    .text-red-600 { color: var(--color-red-600); }
+    .text-white { color: var(--color-white); }
+    .text-transparent { color: transparent; }
+    .opacity-0 { opacity: 0; }
+    .opacity-75 { opacity: 0.75; }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+    .shadow-sm { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .shadow-indigo-500\/30 { box-shadow: 0 10px 15px -3px rgba(99,102,241,0.3); }
+    .shadow-orange-500\/20 { box-shadow: 0 10px 15px -3px rgba(249,115,22,0.2); }
+    .blur-3xl { filter: blur(64px); }
+    .backdrop-blur-md { backdrop-filter: blur(12px); }
+    .backdrop-blur-sm { backdrop-filter: blur(8px); }
+    .backdrop-blur-xl { backdrop-filter: blur(24px); }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-colors { transition-property: color, background-color, border-color; transition-timing-function: cubic-bezier(0.4,0,0.2,1); transition-duration: 150ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .hover\:-translate-y-0\.5:hover { transform: translateY(-0.125rem); }
+    .hover\:scale-105:hover { transform: scale(1.05); }
+    .hover\:border-indigo-300:hover { border-color: var(--color-indigo-300); }
+    .hover\:bg-gray-50:hover { background-color: var(--color-gray-50); }
+    .hover\:bg-indigo-50:hover { background-color: var(--color-indigo-50); }
+    .hover\:bg-indigo-700:hover { background-color: var(--color-indigo-700); }
+    .hover\:from-amber-500:hover { --tw-gradient-from: var(--color-amber-500); }
+    .hover\:from-indigo-700:hover { --tw-gradient-from: var(--color-indigo-700); }
+    .hover\:to-orange-600:hover { --tw-gradient-to: var(--color-orange-600); }
+    .hover\:to-purple-700:hover { --tw-gradient-to: var(--color-purple-700); }
+    .hover\:text-indigo-500:hover { color: var(--color-indigo-500); }
+    .hover\:text-red-500:hover { color: var(--color-red-500); }
+    .hover\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+    .focus\:border-indigo-500:focus { border-color: var(--color-indigo-500); }
+    .focus\:ring-2:focus { box-shadow: 0 0 0 2px var(--color-indigo-200); }
+    .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+    .disabled\:opacity-50:disabled { opacity: 0.5; }
+    .group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+    .group:hover .group-hover\:bg-indigo-100 { background-color: var(--color-indigo-100); }
+    .group:hover .group-hover\:opacity-100 { opacity: 1; }
+    @media (min-width: 640px) {
+      .sm\:inline { display: inline; }
+      .sm\:hidden { display: none; }
+      .sm\:w-96 { width: 24rem; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:p-8 { padding: 2rem; }
+      .sm\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+    }
+    @media (min-width: 768px) {
+      .md\:flex { display: flex; }
+      .md\:hidden { display: none; }
+      .md\:w-1\/3 { width: 33.333333%; }
+      .md\:w-2\/3 { width: 66.666667%; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1024px) {
+      .lg\:col-span-1 { grid-column: span 1 / span 1; }
+      .lg\:col-span-2 { grid-column: span 2 / span 2; }
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+    }
+    .lucide { width: 1.25rem; height: 1.25rem; }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans antialiased">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+  // -------------------------------------------------------------
+  // Firebase Configuration
+  // -------------------------------------------------------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyD1kD-FfGVohJv6X50JszPGlt6-elRFAig",
+    authDomain: "fir-36bb5.firebaseapp.com",
+    projectId: "fir-36bb5",
+    storageBucket: "fir-36bb5.firebasestorage.app",
+    messagingSenderId: "385376719752",
+    appId: "1:385376719752:android:a9fa55dff6a7fa78cd203d"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const serverTimestamp = () => firebase.firestore.FieldValue.serverTimestamp();
+
+  console.log('Firebase initialized successfully');
+
+  // ---------- React Hooks and Context ----------
+  const { useState, useEffect, useRef, createContext, useContext } = React;
+
+  // ---------- Router ----------
+  const RouterContext = createContext(null);
+  const useRouter = () => useContext(RouterContext);
+  
+  const Router = ({ children }) => {
+    const [path, setPath] = useState(window.location.pathname);
+    useEffect(() => {
+      const onPop = () => setPath(window.location.pathname);
+      window.addEventListener('popstate', onPop);
+      return () => window.removeEventListener('popstate', onPop);
+    }, []);
+    const navigate = (to) => { 
+      window.history.pushState(null, '', to); 
+      setPath(to); 
+    };
+    return (
+      <RouterContext.Provider value={{ path, navigate }}>
+        {children}
+      </RouterContext.Provider>
+    );
+  };
+  
+  const Routes = ({ children }) => {
+    const { path } = useRouter();
+    let element = null;
+    React.Children.forEach(children, child => {
+      if (child.props.path === path) element = child.props.element;
+    });
+    return element;
+  };
+  
+  const Route = ({ element }) => null;
+  
+  const Link = ({ to, children, className }) => {
+    const { navigate } = useRouter();
+    return (
+      <a href={to} className={className} onClick={(e) => { e.preventDefault(); navigate(to); }}>
+        {children}
+      </a>
+    );
+  };
+  
+  const Navigate = ({ to }) => { 
+    const { navigate } = useRouter(); 
+    useEffect(() => { navigate(to); }, []); 
+    return null; 
+  };
+
+  // ---------- Auth Context ----------
+  const AuthContext = createContext({ user: null, userData: null, loading: true });
+  const useAuth = () => useContext(AuthContext);
+
+  const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+      const unsub = auth.onAuthStateChanged(async (firebaseUser) => {
+        setUser(firebaseUser);
+        if (!firebaseUser) { 
+          setUserData(null); 
+          setLoading(false); 
+          return; 
+        }
+        try {
+          const userDocRef = db.collection('users').doc(firebaseUser.uid);
+          const snap = await userDocRef.get();
+          if (snap.exists) {
+            setUserData(snap.data());
+          } else {
+            const isAdmin = firebaseUser.email?.toLowerCase() === 'mdrakibulbd175@gmail.com';
+            const newUser = {
+              uid: firebaseUser.uid,
+              fullName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              email: firebaseUser.email,
+              balance: 0,
+              isPremium: false,
+              premiumUntil: null,
+              role: isAdmin ? 'admin' : 'user',
+              createdAt: serverTimestamp()
+            };
+            await userDocRef.set(newUser);
+            setUserData(newUser);
+          }
+        } catch (err) { 
+          console.error(err); 
+        } finally { 
+          setLoading(false); 
+        }
+      });
+      return () => unsub();
+    }, []);
+    
+    return (
+      <AuthContext.Provider value={{ user, userData, loading }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  };
+
+  // ---------- Icon Components ----------
+  const Icon = ({ d, ...props }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      {Array.isArray(d) ? d.map((p, i) => React.createElement(p[0], {key: i, ...p[1]})) : <path d={d} />}
+    </svg>
+  );
+
+  const icons = {
+    Mail: [['rect',{width:20,height:16,x:2,y:4,rx:2}],['path',{d:'m22 7-10 7L2 7'}]],
+    Lock: [['rect',{width:18,height:11,x:3,y:11,rx:2}],['path',{d:'M7 11V7a5 5 0 0 1 10 0v4'}]],
+    User: [['path',{d:'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'}],['circle',{cx:12,cy:7,r:4}]],
+    LogOut: [['path',{d:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'}],['path',{d:'m16 17 5-5-5-5'}],['path',{d:'M21 12H9'}]],
+    Wallet: [['path',{d:'M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'}],['path',{d:'M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'}]],
+    Crown: [['path',{d:'m12 2 3.5 7 7.5 1-5 5 2 8-8-4-8 4 2-8-5-5 7.5-1z'}],['path',{d:'M5 21h14'}]],
+    X: [['path',{d:'M18 6 6 18'}],['path',{d:'m6 6 12 12'}]],
+    Send: [['path',{d:'m22 2-7 20-4-9-9-4z'}],['path',{d:'M22 2 11 13'}]],
+  };
+
+  // ---------- Spinner ----------
+  const Spinner = () => (
+    <div className="flex justify-center p-8">
+      <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+
+  // ---------- Pages ----------
+  const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { navigate } = useRouter();
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      setError(''); 
+      setLoading(true);
+      try { 
+        await auth.signInWithEmailAndPassword(email, password); 
+        navigate('/dashboard'); 
+      } catch (err) { 
+        setError(err.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 px-4">
+        <div className="max-w-md w-full bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] shadow-2xl space-y-6">
+          <h2 className="text-4xl font-extrabold text-center text-gray-900">Welcome Back</h2>
+          <form onSubmit={submit} className="space-y-5">
+            {error && <div className="bg-red-50 text-red-500 p-3 rounded-xl">{error}</div>}
+            <div className="relative">
+              <Icon d={icons.Mail} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="email" required className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-2xl focus:border-indigo-500" 
+                placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div className="relative">
+              <Icon d={icons.Lock} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="password" required className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-2xl" 
+                placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+            </div>
+            <button type="submit" disabled={loading} 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-2xl font-bold shadow-lg">
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+            <div className="text-center">
+              <Link to="/signup" className="text-indigo-600 font-bold">Sign up</Link>
+              {' · '}
+              <Link to="/forgot-password" className="text-indigo-600">Forgot?</Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const Signup = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPass] = useState('');
+    const [confirm, setConfirm] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { navigate } = useRouter();
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      if(password !== confirm) return setError('Passwords do not match');
+      setError(''); 
+      setLoading(true);
+      try { 
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(cred.user.uid).set({ 
+          uid: cred.user.uid, 
+          fullName: name, 
+          email, 
+          balance: 0, 
+          isPremium: false, 
+          role: email.toLowerCase() === 'mdrakibulbd175@gmail.com' ? 'admin' : 'user', 
+          createdAt: serverTimestamp() 
+        });
+        navigate('/dashboard');
+      } catch(err) { 
+        setError(err.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-fuchsia-600 px-4 py-12">
+        <div className="max-w-md w-full bg-white/95 p-10 rounded-[2.5rem] shadow-2xl space-y-6">
+          <h2 className="text-4xl font-extrabold text-center">Create Account</h2>
+          <form onSubmit={submit} className="space-y-4">
+            {error && <div className="bg-red-50 text-red-500 p-3 rounded-xl">{error}</div>}
+            <div className="relative">
+              <Icon d={icons.User} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input required className="w-full pl-12 pr-4 py-3.5 border-2 rounded-2xl" 
+                placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="relative">
+              <Icon d={icons.Mail} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="email" required className="w-full pl-12 pr-4 py-3.5 border-2 rounded-2xl" 
+                placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div className="relative">
+              <Icon d={icons.Lock} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="password" required className="w-full pl-12 pr-4 py-3.5 border-2 rounded-2xl" 
+                placeholder="Password" value={password} onChange={e => setPass(e.target.value)} />
+            </div>
+            <div className="relative">
+              <Icon d={icons.Lock} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="password" required className="w-full pl-12 pr-4 py-3.5 border-2 rounded-2xl" 
+                placeholder="Confirm" value={confirm} onChange={e => setConfirm(e.target.value)} />
+            </div>
+            <button type="submit" disabled={loading} 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-2xl font-bold">
+              {loading ? 'Signing up...' : 'Sign up'}
+            </button>
+            <div className="text-center">
+              <Link to="/login" className="text-indigo-600">Log in</Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const ForgotPassword = () => {
+    const [email, setEmail] = useState('');
+    const [msg, setMsg] = useState('');
+    const [err, setErr] = useState('');
+    const [loading, setLoading] = useState(false);
+    
+    const submit = async (e) => { 
+      e.preventDefault(); 
+      setErr(''); 
+      setMsg(''); 
+      setLoading(true);
+      try { 
+        await auth.sendPasswordResetEmail(email); 
+        setMsg('Reset link sent! Check your inbox.'); 
+      } catch(e) { 
+        setErr(e.message); 
+      } finally { 
+        setLoading(false); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-fuchsia-600">
+        <div className="max-w-md w-full bg-white/95 p-10 rounded-[2.5rem] shadow-2xl space-y-6">
+          <h2 className="text-3xl font-extrabold text-center">Reset Password</h2>
+          <form onSubmit={submit}>
+            {err && <div className="bg-red-50 text-red-500 p-3 rounded-xl">{err}</div>}
+            {msg && <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl">{msg}</div>}
+            <div className="relative my-4">
+              <Icon d={icons.Mail} className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <input type="email" required className="w-full pl-12 pr-4 py-3.5 border-2 rounded-2xl" 
+                placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <button disabled={loading} className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl font-bold">
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const Dashboard = () => {
+    const { user, userData, loading } = useAuth();
+    const { navigate } = useRouter();
+    const [showDeposit, setShowDeposit] = useState(false);
+    const [showWithdraw, setShowWithdraw] = useState(false);
+    const [showPremium, setShowPremium] = useState(false);
+    const [amount, setAmount] = useState('');
+    const [trxId, setTrxId] = useState('');
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [selectedMethod, setSelectedMethod] = useState('');
+    const [history, setHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(true);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    useEffect(() => { 
+      if(!loading && !user) navigate('/login'); 
+    }, [user, loading]);
+    
+    useEffect(() => {
+      if(!user) return;
+      const q = db.collection('gmailHistory')
+        .where('userId', '==', user.uid)
+        .orderBy('createdAt', 'desc');
+      const unsub = q.onSnapshot((snap) => { 
+        setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() }))); 
+        setLoadingHistory(false); 
+      });
+      return unsub;
+    }, [user]);
+    
+    useEffect(() => { 
+      (async () => { 
+        const snap = await db.collection('settings').doc('paymentMethods').get(); 
+        if(snap.exists) setPaymentMethods(snap.data().methods || []); 
+      })(); 
+    }, []);
+    
+    const logout = () => auth.signOut();
+    
+    const buyPremium = async () => { 
+      if(!userData) return; 
+      if(userData.balance < 6) return setError('Insufficient balance. Need $6.');
+      try { 
+        await db.collection('users').doc(user.uid).update({ 
+          balance: userData.balance - 6, 
+          isPremium: true, 
+          premiumUntil: new Date(Date.now() + 30*86400000).toISOString() 
+        }); 
+        setSuccess('Premium activated!'); 
+      } catch(e) { 
+        setError(e.message); 
+      }
+    };
+    
+    const deposit = async (e) => { 
+      e.preventDefault(); 
+      if(!amount || !trxId || !selectedMethod) return;
+      try { 
+        await db.collection('depositRequests').add({ 
+          userId: user.uid, 
+          userEmail: user.email, 
+          method: selectedMethod, 
+          transactionId: trxId, 
+          amount: Number(amount), 
+          status: 'pending', 
+          createdAt: serverTimestamp() 
+        }); 
+        setSuccess('Deposit request submitted'); 
+        setShowDeposit(false); 
+      } catch(e) { 
+        setError(e.message); 
+      }
+    };
+
+    if(loading || !userData) return <Spinner />;
+    
+    return (
+      <div className="min-h-screen bg-slate-50 pb-10">
+        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-30 p-4">
+          <div className="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Gmail Mobile</h1>
+            <div className="flex space-x-3">
+              {userData.role === 'admin' && <Link to="/admin" className="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold">Admin</Link>}
+              <button onClick={logout} className="p-2 text-gray-400 hover:text-red-500">
+                <Icon d={icons.LogOut} className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+        <main className="max-w-5xl mx-auto px-4 mt-8 space-y-8">
+          {success && <div className="bg-emerald-50 text-emerald-700 p-4 rounded-xl">{success}</div>}
+          {error && <div className="bg-red-50 text-red-500 p-4 rounded-xl">{error}</div>}
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border">
+              <div className="flex flex-col items-center space-y-3">
+                <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center border-4 border-white shadow">
+                  <Icon d={icons.User} className="w-10 h-10 text-indigo-600" />
+                </div>
+                <h2 className="text-2xl font-bold">{userData.fullName}</h2>
+                <p className="text-gray-500">{userData.email}</p>
+                <span className={`px-3 py-1 rounded-full text-sm font-bold ${userData.isPremium ? 'bg-amber-50 text-amber-600' : 'bg-gray-100'}`}>
+                  {userData.isPremium ? 'Premium' : 'Free'}
+                </span>
+              </div>
+            </div>
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2rem] p-8 text-white shadow-xl">
+                  <Icon d={icons.Wallet} className="w-8 h-8 mb-2" />
+                  <p className="text-5xl font-extrabold">${userData.balance.toFixed(2)}</p>
+                  <p className="text-indigo-100">Available Balance</p>
+                </div>
+                {!userData.isPremium ? (
+                  <div className="bg-white rounded-[2rem] p-8 border border-amber-100 shadow-sm">
+                    <Icon d={icons.Crown} className="w-8 h-8 text-amber-500 mb-2" />
+                    <h3 className="font-bold text-lg">Upgrade to Premium</h3>
+                    <p className="text-sm text-gray-500">Unlock Gmail creation</p>
+                    <button onClick={buyPremium} className="mt-4 w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white py-3 rounded-xl font-bold">
+                      Buy 1 Month - $6
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2rem] p-8 text-white shadow-xl">
+                    <Icon d={icons.Crown} className="w-10 h-10 mb-2" />
+                    <p className="text-xl">Premium active!</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-4">
+                <button onClick={() => setShowDeposit(true)} className="flex-1 bg-white border rounded-xl py-4 font-bold">Deposit</button>
+                <button onClick={() => setShowWithdraw(true)} className="flex-1 bg-white border rounded-xl py-4 font-bold">Withdraw</button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-[2rem] p-6 shadow-sm">
+            <h3 className="text-xl font-bold mb-4">Gmail History</h3>
+            {loadingHistory ? <Spinner /> : history.length ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead><tr className="bg-gray-50"><th className="p-3">Email</th><th className="p-3">Password</th><th className="p-3">Name</th></tr></thead>
+                  <tbody>
+                    {history.map(h => (
+                      <tr key={h.id} className="border-t">
+                        <td className="p-3">{h.email}</td>
+                        <td className="p-3 font-mono">{h.password}</td>
+                        <td className="p-3">{h.firstName || ''} {h.lastName || ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : <p className="text-gray-500">No accounts yet.</p>}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <button onClick={() => userData.isPremium ? navigate('/create-gmail') : setShowPremium(true)} 
+              className="bg-white p-6 rounded-[2rem] border hover:border-indigo-300 group">
+              <Icon d={icons.Mail} className="w-8 h-8 text-indigo-600" />
+              <h4 className="text-xl font-bold mt-2">Create Gmail</h4>
+            </button>
+            <button onClick={() => {}} className="bg-white p-6 rounded-[2rem] border">
+              <Icon d={icons.Send} className="w-8 h-8 text-emerald-600" />
+              <h4 className="text-xl font-bold mt-2">Sell Gmail</h4>
+            </button>
+          </div>
+        </main>
+        
+        {/* Deposit Modal */}
+        {showDeposit && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-[2rem] p-6 max-w-md w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Deposit</h3>
+                <button onClick={() => setShowDeposit(false)}><Icon d={icons.X} /></button>
+              </div>
+              <form onSubmit={deposit}>
+                <select value={selectedMethod} onChange={e => setSelectedMethod(e.target.value)} className="w-full border p-3 rounded-xl mb-3">
+                  <option value="">Select Method</option>
+                  {paymentMethods.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
+                </select>
+                <input placeholder="Amount" type="number" value={amount} onChange={e => setAmount(e.target.value)} className="w-full border p-3 rounded-xl mb-3" />
+                <input placeholder="Transaction ID" value={trxId} onChange={e => setTrxId(e.target.value)} className="w-full border p-3 rounded-xl mb-3" />
+                <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Submit</button>
+              </form>
+            </div>
+          </div>
+        )}
+        
+        {/* Premium Modal */}
+        {showPremium && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-[2rem] p-6 max-w-md w-full text-center">
+              <Icon d={icons.Crown} className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Premium Required</h3>
+              <p className="text-gray-600 mb-6">Upgrade to access Gmail creation.</p>
+              <button onClick={() => { setShowPremium(false); buyPremium(); }} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold">Upgrade ($6)</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const Admin = () => {
+    const { userData } = useAuth();
+    const { navigate } = useRouter();
+    const [deposits, setDeposits] = useState([]);
+    
+    useEffect(() => { if(userData?.role !== 'admin') navigate('/dashboard'); }, [userData]);
+    useEffect(() => { 
+      const q = db.collection('depositRequests').where('status', '==', 'pending');
+      return q.onSnapshot(s => setDeposits(s.docs.map(d => ({ id: d.id, ...d.data() })))); 
+    }, []);
+    
+    const approveDeposit = async (req) => { 
+      try { 
+        await db.runTransaction(async (t) => {
+          const userRef = db.collection('users').doc(req.userId);
+          const userSnap = await t.get(userRef);
+          if(!userSnap.exists) throw new Error('User not found');
+          t.update(userRef, { balance: userSnap.data().balance + req.amount });
+          t.update(db.collection('depositRequests').doc(req.id), { status: 'approved' });
+        }); 
+      } catch(e) { 
+        alert(e.message); 
+      } 
+    };
+    
+    return (
+      <div className="min-h-screen bg-slate-50 p-6">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-2xl font-bold mb-6">Admin Panel</h1>
+          <div className="bg-white rounded-[2rem] p-6">
+            <h2 className="text-lg font-bold mb-4">Pending Deposits</h2>
+            {deposits.map(r => (
+              <div key={r.id} className="bg-gray-50 p-4 rounded-xl mb-2 flex justify-between items-center">
+                <span>{r.userEmail} - ${r.amount} ({r.method})</span>
+                <button onClick={() => approveDeposit(r)} className="bg-emerald-500 text-white px-4 py-2 rounded-lg">Approve</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const CreateGmail = () => {
+    const { user } = useAuth();
+    const { navigate } = useRouter();
+    const [step, setStep] = useState(1);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [password, setPassword] = useState('');
+    
+    const genEmail = () => `${firstName.toLowerCase().replace(/[^a-z]/g,'')}${lastName.toLowerCase().replace(/[^a-z]/g,'')}${Math.floor(Math.random()*1000)}@gmail.com`;
+    
+    const create = async () => {
+      const email = genEmail();
+      try { 
+        await db.collection('gmailHistory').add({ 
+          userId: user.uid, email, password, firstName, lastName, createdAt: serverTimestamp() 
+        }); 
+        navigate('/dashboard'); 
+      } catch(e) { 
+        alert(e.message); 
+      }
+    };
+    
+    return (
+      <div className="min-h-screen bg-black text-white p-6">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl mb-6">Create Google Account</h1>
+          {step === 1 && (
+            <>
+              <input className="w-full bg-transparent border p-4 rounded mb-3" placeholder="First name" value={firstName} onChange={e => setFirstName(e.target.value)} />
+              <input className="w-full bg-transparent border p-4 rounded mb-3" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)} />
+              <button onClick={() => setStep(2)} className="bg-[#a8c7fa] text-black px-6 py-3 rounded">Next</button>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <input type="password" className="w-full bg-transparent border p-4 rounded mb-3" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+              <button onClick={create} className="bg-[#a8c7fa] text-black px-6 py-3 rounded">Create Account</button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ---------- App Root ----------
+  const App = () => (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/create-gmail" element={<CreateGmail />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+
+  // Render the app
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+</script>
+</body>
+</html>
